@@ -2,7 +2,7 @@ package ch.heigvd.iict.dmg.labo1.indexer;
 
 import ch.heigvd.iict.dmg.labo1.parsers.ParserListener;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.document.Document;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -52,7 +52,18 @@ public class CACMIndexer implements ParserListener {
 		// TODO student: add to the document "doc" the fields given in
 		// parameters. You job is to use the right Field and FieldType
 		// for these parameters.
+		Field idField = new LongPoint("id", id);
+		doc.add(idField);
 
+		for (String a : authors.split(";")) {
+			Field authorField = new StringField("author", a, Field.Store.YES);
+			doc.add(authorField);
+		}
+		Field titleField = new TextField("title", title, Field.Store.YES);
+		Field summaryField = new TextField("summary", summary, Field.Store.YES);
+
+		doc.add(titleField);
+		doc.add(summaryField);
 		try {
 			this.indexWriter.addDocument(doc);
 		} catch (IOException e) {
