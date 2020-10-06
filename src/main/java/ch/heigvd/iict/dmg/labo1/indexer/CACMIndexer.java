@@ -3,6 +3,7 @@ package ch.heigvd.iict.dmg.labo1.indexer;
 import ch.heigvd.iict.dmg.labo1.parsers.ParserListener;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.*;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -13,6 +14,8 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+
+import static org.apache.lucene.document.LongPoint.pack;
 
 public class CACMIndexer implements ParserListener {
 	
@@ -53,21 +56,30 @@ public class CACMIndexer implements ParserListener {
 		// parameters. You job is to use the right Field and FieldType
 		// for these parameters.
 		if (id != null) {
-			Field idField = new LongPoint("id", id);
+			FieldType type = getDefaultType();
+			type.setStoreTermVectors(true);
+			Field idField = new Field("id", id + "", type);
 			doc.add(idField);
 		}
 		if (authors != null) {
 			for (String a : authors.split(";")) {
-				Field authorField = new StringField("author", a, Field.Store.YES);
+				FieldType type = getDefaultType();
+				//type.setStoreTermVectors(true);
+				Field authorField = new Field("author", a, type);
 				doc.add(authorField);
 			}
 		}
 		if (title != null) {
-			Field titleField = new TextField("title", title, Field.Store.YES);
+			FieldType type = getDefaultType();
+			type.setStoreTermVectors(true);
+			Field titleField = new Field("title", title, type);
 			doc.add(titleField);
 		}
 		if (summary != null) {
-			Field summaryField = new TextField("summary", summary, Field.Store.YES);
+			FieldType type = getDefaultType();
+			type.setStoreTermVectors(true);
+			type.setStoreTermVectorOffsets(true);
+			Field summaryField = new Field("summary", summary, type);
 			doc.add(summaryField);
 		}
 		try {
@@ -75,6 +87,15 @@ public class CACMIndexer implements ParserListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public FieldType getDefaultType() {
+		FieldType type = new FieldType();
+//		type.setOmitNorms(true);
+		type.setIndexOptions(IndexOptions.DOCS);
+		type.setStored(true);
+		type.setTokenized(false);
+		return type;
 	}
 	
 	public void finalizeIndex() {
