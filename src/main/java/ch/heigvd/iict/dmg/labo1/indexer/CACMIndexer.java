@@ -56,30 +56,30 @@ public class CACMIndexer implements ParserListener {
 		// parameters. You job is to use the right Field and FieldType
 		// for these parameters.
 		if (id != null) {
-			FieldType type = getDefaultType();
-			type.setStoreTermVectors(true);
-			Field idField = new Field("id", id + "", type);
+			Field idField = new StringField("id", id+"", Field.Store.YES);
 			doc.add(idField);
 		}
 		if (authors != null) {
 			for (String a : authors.split(";")) {
-				FieldType type = getDefaultType();
-				//type.setStoreTermVectors(true);
-				Field authorField = new Field("author", a, type);
-				doc.add(authorField);
+				Field authorsField = new StringField("authors", a, Field.Store.YES);
+				doc.add(authorsField);
 			}
 		}
 		if (title != null) {
-			FieldType type = getDefaultType();
-			type.setStoreTermVectors(true);
-			Field titleField = new Field("title", title, type);
+			FieldType ownField = new FieldType();
+			ownField.setIndexOptions(IndexOptions.DOCS);
+			ownField.setStoreTermVectors(true);
+			ownField.setStored(true);
+			Field titleField = new Field("title", title, ownField);
 			doc.add(titleField);
 		}
 		if (summary != null) {
-			FieldType type = getDefaultType();
-			type.setStoreTermVectors(true);
-			type.setStoreTermVectorOffsets(true);
-			Field summaryField = new Field("summary", summary, type);
+			FieldType ownField = new FieldType();
+			ownField.setIndexOptions(IndexOptions.DOCS);
+			ownField.setStoreTermVectorOffsets(true);
+			ownField.setStoreTermVectors(true);
+			ownField.setStored(true);
+			Field summaryField = new Field("summary", summary, ownField);
 			doc.add(summaryField);
 		}
 		try {
@@ -87,15 +87,6 @@ public class CACMIndexer implements ParserListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public FieldType getDefaultType() {
-		FieldType type = new FieldType();
-//		type.setOmitNorms(true);
-		type.setIndexOptions(IndexOptions.DOCS);
-		type.setStored(true);
-		type.setTokenized(false);
-		return type;
 	}
 	
 	public void finalizeIndex() {
